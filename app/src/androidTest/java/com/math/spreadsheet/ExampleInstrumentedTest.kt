@@ -1,4 +1,4 @@
-package com.math.dobcalc
+package com.math.spreadsheet
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.math.dobcalc", appContext.packageName)
+        assertEquals("com.math.expense.spreadsheet", appContext.packageName)
     }
 }

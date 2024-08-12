@@ -7,7 +7,7 @@ android {
     compileSdk 32
 
     defaultConfig {
-        applicationId "com.math.dobcalc"
+        applicationId "com.math.expense.spreadsheet"
         minSdk 21
         targetSdk 32
         versionCode 1

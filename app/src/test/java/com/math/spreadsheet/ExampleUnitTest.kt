@@ -1,4 +1,4 @@
-package com.math.dobcalc
+package com.math.spreadsheet
 
 import org.junit.Test
 
