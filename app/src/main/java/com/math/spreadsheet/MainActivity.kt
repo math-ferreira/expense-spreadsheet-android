@@ -1,6 +1,7 @@
 package com.math.spreadsheet
 
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -34,6 +35,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val btnAddExpense: Button = findViewById(R.id.btnAddExpense)
+        val btnGoToSetup: Button = findViewById(R.id.btnGoToSetup)
+
         itemSelectedSpinner = findViewById(R.id.expenseCategorySpinner)
         amountSelectedEditText = findViewById(R.id.editTextAmount)
         descriptionEditText = findViewById(R.id.editTextDescription)
@@ -64,6 +67,11 @@ class MainActivity : AppCompatActivity() {
 
         btnAddExpense.setOnClickListener {
             clickAddExpense()
+        }
+
+        btnGoToSetup.setOnClickListener {
+            val intent = Intent(this, SetupActivity::class.java)
+            startActivity(intent)
         }
     }
 
