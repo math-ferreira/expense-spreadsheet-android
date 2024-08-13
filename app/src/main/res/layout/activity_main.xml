@@ -31,7 +31,7 @@
     <Spinner
         android:id="@+id/expenseCategorySpinner"
         android:layout_width="271dp"
-        android:layout_height="wrap_content"
+        android:layout_height="47dp"
         android:layout_marginTop="16dp"
         android:entries="@array/expense_categories" />
 
@@ -47,10 +47,10 @@
     <EditText
         android:id="@+id/editTextAmount"
         android:layout_width="275dp"
-        android:layout_height="wrap_content"
+        android:layout_height="70dp"
         android:ems="10"
-        android:inputType="number"
-        android:hint="Enter amount" />
+        android:hint="Enter amount"
+        android:inputType="number" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -64,10 +64,30 @@
     <EditText
         android:id="@+id/editTextDescription"
         android:layout_width="271dp"
-        android:layout_height="wrap_content"
+        android:layout_height="78dp"
         android:ems="10"
-        android:inputType="text"
-        android:hint="Description (Optional)" />
+        android:hint="Description (Optional)"
+        android:inputType="text" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Date"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/editTextDate"
+        android:layout_width="275dp"
+        android:layout_height="70dp"
+        android:ems="10"
+        android:inputType="date"
+        android:hint="Select Date"
+        android:focusable="false"
+        android:clickable="true" />
+
 
     <Button
         android:id="@+id/btnAddExpense"
