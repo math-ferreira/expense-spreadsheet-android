@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.jakewharton.threetenabp.AndroidThreeTen
@@ -21,9 +22,10 @@ class MainActivity : AppCompatActivity() {
     private var amountSelectedEditText: EditText? = null
     private var descriptionEditText: EditText? = null
     private var dateEditText: EditText? = null
+    private lateinit var summaryTextView: TextView
     private lateinit var dbHelper: DatabaseHelper
 
-    private fun init(){
+    private fun init() {
         AndroidThreeTen.init(this)
         dbHelper = DatabaseHelper(this)
     }
@@ -36,11 +38,13 @@ class MainActivity : AppCompatActivity() {
 
         val btnAddExpense: Button = findViewById(R.id.btnAddExpense)
         val btnGoToSetup: Button = findViewById(R.id.btnGoToSetup)
+        val btnGoToHistory: Button = findViewById(R.id.btnGoToExpenseHistory)
 
         itemSelectedSpinner = findViewById(R.id.expenseCategorySpinner)
         amountSelectedEditText = findViewById(R.id.editTextAmount)
         descriptionEditText = findViewById(R.id.editTextDescription)
         dateEditText = findViewById(R.id.editTextDate)
+        summaryTextView = findViewById(R.id.summaryTextView)
 
         // Set the default date to the current date
         val currentDate = LocalDate.now()
@@ -73,6 +77,13 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, SetupActivity::class.java)
             startActivity(intent)
         }
+
+        btnGoToHistory.setOnClickListener {
+            val intent = Intent(this, ExpensesTableActivity::class.java)
+            startActivity(intent)
+        }
+
+        updateCurrentTotalBalance()
     }
 
     private fun clickAddExpense() {
@@ -82,7 +93,12 @@ class MainActivity : AppCompatActivity() {
         val selectedDate = dateEditText?.text.toString()
 
         if (enteredAmount != null) {
-            dbHelper.addExpense(selectedCategory, enteredAmount, enteredDescription, LocalDate.parse(selectedDate, DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+            dbHelper.addExpense(
+                selectedCategory,
+                enteredAmount,
+                enteredDescription,
+                LocalDate.parse(selectedDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            )
             Toast.makeText(this, "Expense added!", Toast.LENGTH_SHORT).show()
 
             amountSelectedEditText?.text?.clear()
@@ -91,5 +107,16 @@ class MainActivity : AppCompatActivity() {
         } else {
             Toast.makeText(this, "Please enter a valid amount", Toast.LENGTH_SHORT).show()
         }
+
+        updateCurrentTotalBalance()
     }
+
+    private fun updateCurrentTotalBalance() {
+        val availableMoney = dbHelper.getAvailableMoney()
+        val totalExpenses = dbHelper.getTotalExpenses()
+
+        "Summary: Available Money - Total Expenses = ${availableMoney?.minus(totalExpenses ?: 0.0) ?: "N/A"}"
+            .let { summaryTextView.text = it }
+    }
+
 }

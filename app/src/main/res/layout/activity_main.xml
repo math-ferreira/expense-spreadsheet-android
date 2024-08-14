@@ -27,6 +27,14 @@
         android:text="Setup"
         android:textSize="10sp" />
 
+    <Button
+        android:id="@+id/btnGoToExpenseHistory"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_marginTop="12dp"
+        android:text="History"
+        android:textSize="10sp" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -96,7 +104,6 @@
         android:focusable="false"
         android:clickable="true" />
 
-
     <Button
         android:id="@+id/btnAddExpense"
         android:layout_width="wrap_content"
@@ -105,5 +112,16 @@
         android:text="Add"
         android:textColor="@color/black"
         android:textSize="18sp" />
+
+    <!-- Added TextView for summary -->
+    <TextView
+        android:id="@+id/summaryTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Summary: Available Money - Total Expenses = "
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        android:textStyle="bold" />
 
 </LinearLayout>

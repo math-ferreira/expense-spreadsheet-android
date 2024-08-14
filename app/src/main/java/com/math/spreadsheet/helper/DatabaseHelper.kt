@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.math.spreadsheet.model.dto.Expense
 import org.threeten.bp.LocalDate
 
 // Database constants
@@ -18,7 +19,7 @@ private const val COLUMN_YEAR = "year"
 private const val COLUMN_MONTH = "month"
 private const val COLUMN_CATEGORY = "category"
 private const val COLUMN_AMOUNT = "amount"
-private const val COLUMN_AVAILABLE_MONEY  = "available_money"
+private const val COLUMN_AVAILABLE_MONEY = "available_money"
 private const val COLUMN_DESCRIPTION = "description"
 private const val CREATED_AT = "created_at"
 
@@ -31,6 +32,8 @@ class DatabaseHelper(context: Context) :
             $COLUMN_CATEGORY TEXT,
             $COLUMN_AMOUNT REAL,
             $COLUMN_DESCRIPTION TEXT,
+            $COLUMN_YEAR INTEGER,
+            $COLUMN_MONTH INTEGER,
             $CREATED_AT TEXT
         )
     """.trimIndent()
@@ -60,11 +63,43 @@ class DatabaseHelper(context: Context) :
             put(COLUMN_CATEGORY, category)
             put(COLUMN_AMOUNT, amount)
             put(COLUMN_DESCRIPTION, description)
+            put(COLUMN_MONTH, createdAt.monthValue)
+            put(COLUMN_YEAR, createdAt.year)
             put(CREATED_AT, createdAt.toString())
         }
         db.insert(EXPENSES_TABLE_NAME, null, values)
         db.close()
     }
+
+    fun getAllExpenses(): List<Expense> {
+        val expenses = mutableListOf<Expense>()
+        val db = this.readableDatabase
+
+        val cursor = db.query(
+            EXPENSES_TABLE_NAME, // Corrected table name
+            arrayOf(COLUMN_CATEGORY, COLUMN_AMOUNT, COLUMN_DESCRIPTION, CREATED_AT),
+            null,
+            null,
+            null, null, null
+        )
+
+        if (cursor.moveToFirst()) {
+            do {
+                val category = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CATEGORY))
+                val amount = cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_AMOUNT))
+                val description = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DESCRIPTION))
+                val createdAt = cursor.getString(cursor.getColumnIndexOrThrow(CREATED_AT))
+
+                val expense = Expense(category, amount, description, createdAt)
+                expenses.add(expense)
+            } while (cursor.moveToNext())
+        }
+
+        cursor.close()
+        db.close()
+        return expenses
+    }
+
 
     fun saveOrUpdateAvailableMoney(amount: Double) {
         val db = this.writableDatabase
@@ -123,6 +158,30 @@ class DatabaseHelper(context: Context) :
         cursor.close()
         db.close()
         return availableMoney
+    }
+
+    fun getTotalExpenses(): Double? {
+        val db = this.readableDatabase
+
+        val currentYear = LocalDate.now().year
+        val currentMonth = LocalDate.now().monthValue
+
+        val cursor = db.query(
+            EXPENSES_TABLE_NAME,
+            arrayOf(COLUMN_AMOUNT),
+            "$COLUMN_YEAR = ? AND $COLUMN_MONTH = ?",
+            arrayOf(currentYear.toString(), currentMonth.toString()),
+            null, null, null
+        )
+
+        var totalExpenses: Double = 0.0
+        while (cursor.moveToNext()) {
+            cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_AMOUNT)).let { totalExpenses += it }
+        }
+
+        cursor.close()
+        db.close()
+        return totalExpenses
     }
 
 }
