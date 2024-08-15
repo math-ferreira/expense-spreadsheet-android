@@ -1,6 +1,9 @@
 package com.math.spreadsheet
 
+import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
+import android.widget.Button
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
@@ -17,39 +20,72 @@ class ExpensesTableActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_history)
 
-        dbHelper = DatabaseHelper(this)
+        val btnBack: Button = findViewById(R.id.btnBack)
 
+        dbHelper = DatabaseHelper(this)
         tableLayout = findViewById(R.id.expensesTableLayout)
 
-        // Load the expenses from the database
         val expenses = dbHelper.getAllExpenses()
 
-        // Add each expense as a new row in the table
         for (expense in expenses) {
             val tableRow = TableRow(this)
 
-            val categoryTextView = TextView(this)
-            categoryTextView.text = expense.category
-            categoryTextView.setPadding(8, 8, 8, 8)
+            val categoryTextView = TextView(this).apply {
+                text = expense.category
+                setPadding(8, 8, 8, 8)
+                setTextColor(Color.BLACK)
+            }
 
-            val amountTextView = TextView(this)
-            amountTextView.text = expense.amount.toString()
-            amountTextView.setPadding(8, 8, 8, 8)
+            val amountTextView = TextView(this).apply {
+                text = expense.amount.toString()
+                setPadding(8, 8, 8, 8)
+                setTextColor(Color.BLACK)
+            }
 
-            val descriptionTextView = TextView(this)
-            descriptionTextView.text = expense.description
-            descriptionTextView.setPadding(8, 8, 8, 8)
+            val descriptionTextView = TextView(this).apply {
+                text = expense.description
+                setPadding(8, 8, 8, 8)
+                setTextColor(Color.BLACK)
+            }
 
-            val dateTextView = TextView(this)
-            dateTextView.text = expense.createdAt
-            dateTextView.setPadding(8, 8, 8, 8)
+            val dateTextView = TextView(this).apply {
+                text = expense.createdAt
+                setPadding(8, 8, 8, 8)
+                setTextColor(Color.BLACK)
+            }
+
+            val btnEdit = Button(this).apply {
+                text = "Edit"
+                setOnClickListener {
+                    val editIntent = Intent(this@ExpensesTableActivity, EditExpenseActivity::class.java)
+                    editIntent.putExtra("expenseId", expense.id) // Pass the expense ID
+                    startActivity(editIntent)
+                }
+            }
+
+            val btnDelete = Button(this).apply {
+                text = "Delete"
+                setOnClickListener {
+                    dbHelper.deleteExpense(expense.id)
+                    recreate()
+                }
+            }
 
             tableRow.addView(categoryTextView)
             tableRow.addView(amountTextView)
             tableRow.addView(descriptionTextView)
             tableRow.addView(dateTextView)
+            tableRow.addView(btnEdit)
+            tableRow.addView(btnDelete)
 
             tableLayout.addView(tableRow)
+        }
+
+        btnBack.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+            finish()
         }
     }
 }

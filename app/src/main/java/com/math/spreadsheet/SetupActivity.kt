@@ -1,5 +1,6 @@
 package com.math.spreadsheet
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -24,6 +25,10 @@ class SetupActivity : AppCompatActivity() {
 
         btnSave.setOnClickListener {
             saveAvailableMoney()
+            val intent = Intent(this, MainActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+            finish()
         }
 
         // Load existing value if available
@@ -35,7 +40,7 @@ class SetupActivity : AppCompatActivity() {
 
         if (enteredAmount != null) {
             dbHelper.saveOrUpdateAvailableMoney(enteredAmount)
-            Toast.makeText(this, "Available money for this month saved!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Available money for this month has been updated!", Toast.LENGTH_LONG).show()
         } else {
             Toast.makeText(this, "Please enter a valid amount", Toast.LENGTH_SHORT).show()
         }

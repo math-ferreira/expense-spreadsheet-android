@@ -21,7 +21,7 @@ private const val COLUMN_CATEGORY = "category"
 private const val COLUMN_AMOUNT = "amount"
 private const val COLUMN_AVAILABLE_MONEY = "available_money"
 private const val COLUMN_DESCRIPTION = "description"
-private const val CREATED_AT = "created_at"
+private const val COLUMN_CREATED_AT = "created_at"
 
 class DatabaseHelper(context: Context) :
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
@@ -34,7 +34,7 @@ class DatabaseHelper(context: Context) :
             $COLUMN_DESCRIPTION TEXT,
             $COLUMN_YEAR INTEGER,
             $COLUMN_MONTH INTEGER,
-            $CREATED_AT TEXT
+            $COLUMN_CREATED_AT TEXT
         )
     """.trimIndent()
 
@@ -65,9 +65,56 @@ class DatabaseHelper(context: Context) :
             put(COLUMN_DESCRIPTION, description)
             put(COLUMN_MONTH, createdAt.monthValue)
             put(COLUMN_YEAR, createdAt.year)
-            put(CREATED_AT, createdAt.toString())
+            put(COLUMN_CREATED_AT, createdAt.toString())
         }
         db.insert(EXPENSES_TABLE_NAME, null, values)
+        db.close()
+    }
+
+    fun updateExpense(expenseId: Long, category: String, amount: Double, description: String, date: String) {
+        val db = this.writableDatabase
+        val values = ContentValues().apply {
+            put(COLUMN_CATEGORY, category)
+            put(COLUMN_AMOUNT, amount)
+            put(COLUMN_DESCRIPTION, description)
+            put(COLUMN_CREATED_AT, date)
+        }
+        db.update(EXPENSES_TABLE_NAME, values, "$COLUMN_ID = ?", arrayOf(expenseId.toString()))
+        db.close()
+    }
+
+    fun getExpenseById(expenseId: Long): Expense? {
+        val db = this.readableDatabase
+        val cursor = db.query(
+            EXPENSES_TABLE_NAME,
+            arrayOf(COLUMN_ID, COLUMN_CATEGORY, COLUMN_AMOUNT, COLUMN_DESCRIPTION, COLUMN_CREATED_AT),
+            "$COLUMN_ID = ?",
+            arrayOf(expenseId.toString()),
+            null,
+            null,
+            null
+        )
+
+        var expense: Expense? = null
+        if (cursor.moveToFirst()) {
+            val id = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_ID))
+            val category = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CATEGORY))
+            val amount = cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_AMOUNT))
+            val description = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DESCRIPTION))
+            val createdAt = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CREATED_AT))
+
+            expense = Expense(id, category, amount, description, createdAt)
+        }
+        cursor.close()
+        db.close()
+
+        return expense
+    }
+
+
+    fun deleteExpense(expenseId: Long) {
+        val db = this.writableDatabase
+        db.delete(EXPENSES_TABLE_NAME, "$COLUMN_ID = ?", arrayOf(expenseId.toString()))
         db.close()
     }
 
@@ -77,7 +124,7 @@ class DatabaseHelper(context: Context) :
 
         val cursor = db.query(
             EXPENSES_TABLE_NAME, // Corrected table name
-            arrayOf(COLUMN_CATEGORY, COLUMN_AMOUNT, COLUMN_DESCRIPTION, CREATED_AT),
+            arrayOf(COLUMN_ID, COLUMN_CATEGORY, COLUMN_AMOUNT, COLUMN_DESCRIPTION, COLUMN_CREATED_AT),
             null,
             null,
             null, null, null
@@ -85,12 +132,13 @@ class DatabaseHelper(context: Context) :
 
         if (cursor.moveToFirst()) {
             do {
+                val id = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_ID))
                 val category = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CATEGORY))
                 val amount = cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_AMOUNT))
                 val description = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DESCRIPTION))
-                val createdAt = cursor.getString(cursor.getColumnIndexOrThrow(CREATED_AT))
+                val createdAt = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CREATED_AT))
 
-                val expense = Expense(category, amount, description, createdAt)
+                val expense = Expense(id, category, amount, description, createdAt)
                 expenses.add(expense)
             } while (cursor.moveToNext())
         }
@@ -176,7 +224,8 @@ class DatabaseHelper(context: Context) :
 
         var totalExpenses: Double = 0.0
         while (cursor.moveToNext()) {
-            cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_AMOUNT)).let { totalExpenses += it }
+            cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_AMOUNT))
+                .let { totalExpenses += it }
         }
 
         cursor.close()
