@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.math.spreadsheet.model.dto.Expense
 import org.threeten.bp.LocalDate
+import org.threeten.bp.format.DateTimeFormatter
 
 // Database constants
 private const val DATABASE_NAME = "expenses.db"
@@ -72,12 +73,17 @@ class DatabaseHelper(context: Context) :
     }
 
     fun updateExpense(expenseId: Long, category: String, amount: Double, description: String, date: String) {
+
+        val localDate = LocalDate.parse(date, DateTimeFormatter.ISO_DATE)
+
         val db = this.writableDatabase
         val values = ContentValues().apply {
             put(COLUMN_CATEGORY, category)
             put(COLUMN_AMOUNT, amount)
             put(COLUMN_DESCRIPTION, description)
             put(COLUMN_CREATED_AT, date)
+            put(COLUMN_MONTH, localDate.monthValue)
+            put(COLUMN_YEAR, localDate.year)
         }
         db.update(EXPENSES_TABLE_NAME, values, "$COLUMN_ID = ?", arrayOf(expenseId.toString()))
         db.close()
@@ -124,7 +130,7 @@ class DatabaseHelper(context: Context) :
 
         val cursor = db.query(
             EXPENSES_TABLE_NAME, // Corrected table name
-            arrayOf(COLUMN_ID, COLUMN_CATEGORY, COLUMN_AMOUNT, COLUMN_DESCRIPTION, COLUMN_CREATED_AT),
+            arrayOf(COLUMN_ID, COLUMN_CATEGORY, COLUMN_AMOUNT, COLUMN_DESCRIPTION, COLUMN_MONTH, COLUMN_YEAR),
             null,
             null,
             null, null, null
@@ -136,9 +142,10 @@ class DatabaseHelper(context: Context) :
                 val category = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CATEGORY))
                 val amount = cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_AMOUNT))
                 val description = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DESCRIPTION))
-                val createdAt = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CREATED_AT))
+                val month = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_MONTH))
+                val year = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_YEAR))
 
-                val expense = Expense(id, category, amount, description, createdAt)
+                val expense = Expense(id, category, amount, description, "$month/$year")
                 expenses.add(expense)
             } while (cursor.moveToNext())
         }
@@ -208,17 +215,14 @@ class DatabaseHelper(context: Context) :
         return availableMoney
     }
 
-    fun getTotalExpenses(): Double? {
+    fun getTotalExpenses(month: Int, year: Int): Double? {
         val db = this.readableDatabase
-
-        val currentYear = LocalDate.now().year
-        val currentMonth = LocalDate.now().monthValue
 
         val cursor = db.query(
             EXPENSES_TABLE_NAME,
             arrayOf(COLUMN_AMOUNT),
             "$COLUMN_YEAR = ? AND $COLUMN_MONTH = ?",
-            arrayOf(currentYear.toString(), currentMonth.toString()),
+            arrayOf(year.toString(), month.toString()),
             null, null, null
         )
 
@@ -232,5 +236,33 @@ class DatabaseHelper(context: Context) :
         db.close()
         return totalExpenses
     }
+
+    fun getExpensesByCategory(month: Int, year: Int): Map<String, Float> {
+        val db = this.readableDatabase
+        val query = """
+        SELECT $COLUMN_CATEGORY, SUM($COLUMN_AMOUNT) as total 
+        FROM $EXPENSES_TABLE_NAME 
+        WHERE $COLUMN_YEAR = ? AND $COLUMN_MONTH = ? 
+        GROUP BY $COLUMN_CATEGORY
+    """
+        val cursor = db.rawQuery(query, arrayOf(year.toString(), month.toString()))
+
+        val categoryExpenses = mutableMapOf<String, Float>()
+
+        if (cursor.moveToFirst()) {
+            do {
+                val category = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CATEGORY))
+                val total = cursor.getFloat(cursor.getColumnIndexOrThrow("total"))
+                categoryExpenses[category] = total
+            } while (cursor.moveToNext())
+        }
+
+        cursor.close()
+        db.close()
+
+        return categoryExpenses
+    }
+
+
 
 }

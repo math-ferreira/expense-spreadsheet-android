@@ -3,6 +3,7 @@ package com.math.spreadsheet
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
@@ -39,8 +40,18 @@ class MainActivity : AppCompatActivity() {
         val btnAddExpense: Button = findViewById(R.id.btnAddExpense)
         val btnGoToSetup: Button = findViewById(R.id.btnGoToSetup)
         val btnGoToHistory: Button = findViewById(R.id.btnGoToExpenseHistory)
+        val btnGoToChart: Button = findViewById(R.id.btnGoToChart)
 
         itemSelectedSpinner = findViewById(R.id.expenseCategorySpinner)
+
+        val adapter = ArrayAdapter.createFromResource(
+            this,
+            R.array.expense_categories,
+            R.layout.spinner_item
+        )
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        itemSelectedSpinner!!.adapter = adapter
+
         amountSelectedEditText = findViewById(R.id.editTextAmount)
         descriptionEditText = findViewById(R.id.editTextDescription)
         dateEditText = findViewById(R.id.editTextDate)
@@ -79,7 +90,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnGoToHistory.setOnClickListener {
-            val intent = Intent(this, ExpensesTableActivity::class.java)
+            val intent = Intent(this, ExpensesHistoryActivity::class.java)
+            startActivity(intent)
+        }
+
+        btnGoToChart.setOnClickListener {
+            val intent = Intent(this, ChartActivity::class.java)
             startActivity(intent)
         }
 
@@ -112,8 +128,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateCurrentTotalBalance() {
+
+        val now = LocalDate.now()
+
         val availableMoney = dbHelper.getAvailableMoney()
-        val totalExpenses = dbHelper.getTotalExpenses()
+        val totalExpenses = dbHelper.getTotalExpenses(now.monthValue, now.year)
 
         "Summary: Available Money - Total Expenses = ${availableMoney?.minus(totalExpenses ?: 0.0) ?: "N/A"}"
             .let { summaryTextView.text = it }

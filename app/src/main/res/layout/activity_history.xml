@@ -19,7 +19,6 @@
             android:textColor="@color/black"
             android:textSize="12sp" />
 
-        <!-- Title -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -30,7 +29,6 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="16dp"/>
 
-        <!-- HorizontalScrollView wrapping the TableLayout -->
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -44,9 +42,7 @@
                 android:padding="8dp"
                 android:layout_marginBottom="16dp">
 
-                <!-- Table Header -->
                 <TableRow>
-
                     <TextView
                         android:layout_width="103dp"
                         android:layout_height="wrap_content"
@@ -75,7 +71,7 @@
                         android:layout_width="102dp"
                         android:layout_height="wrap_content"
                         android:padding="5dp"
-                        android:text="Date"
+                        android:text="Month/Year"
                         android:textColor="@color/black"
                         android:textStyle="bold" />
                 </TableRow>

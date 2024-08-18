@@ -18,6 +18,7 @@ class SetupActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_setup)
 
+        val btnBack: Button = findViewById(R.id.btnBack)
         dbHelper = DatabaseHelper(this)
 
         availableMoneyEditText = findViewById(R.id.editTextAvailableMoney)
@@ -31,8 +32,11 @@ class SetupActivity : AppCompatActivity() {
             finish()
         }
 
-        // Load existing value if available
         loadAvailableMoney()
+
+        btnBack.setOnClickListener {
+            finish()
+        }
     }
 
     private fun saveAvailableMoney() {

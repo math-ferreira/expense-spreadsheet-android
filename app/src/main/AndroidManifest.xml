@@ -24,7 +24,7 @@
         </activity>
 
         <activity
-            android:name="com.math.spreadsheet.ExpensesTableActivity"
+            android:name="com.math.spreadsheet.ExpensesHistoryActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -34,6 +34,15 @@
 
         <activity
             android:name="com.math.spreadsheet.EditExpenseActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.math.spreadsheet.ChartActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

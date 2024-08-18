@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.math.expense.spreadsheet.R
 import com.math.spreadsheet.helper.DatabaseHelper
 
-class ExpensesTableActivity : AppCompatActivity() {
+class ExpensesHistoryActivity : AppCompatActivity() {
 
     private lateinit var tableLayout: TableLayout
     private lateinit var dbHelper: DatabaseHelper
@@ -49,7 +49,7 @@ class ExpensesTableActivity : AppCompatActivity() {
             }
 
             val dateTextView = TextView(this).apply {
-                text = expense.createdAt
+                text = expense.monthYear
                 setPadding(8, 8, 8, 8)
                 setTextColor(Color.BLACK)
             }
@@ -57,7 +57,7 @@ class ExpensesTableActivity : AppCompatActivity() {
             val btnEdit = Button(this).apply {
                 text = "Edit"
                 setOnClickListener {
-                    val editIntent = Intent(this@ExpensesTableActivity, EditExpenseActivity::class.java)
+                    val editIntent = Intent(this@ExpensesHistoryActivity, EditExpenseActivity::class.java)
                     editIntent.putExtra("expenseId", expense.id) // Pass the expense ID
                     startActivity(editIntent)
                 }
