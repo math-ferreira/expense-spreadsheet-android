@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         val btnAddExpense: Button = findViewById(R.id.btnAddExpense)
         val btnGoToSetup: Button = findViewById(R.id.btnGoToSetup)
         val btnGoToHistory: Button = findViewById(R.id.btnGoToExpenseHistory)
-        val btnGoToChart: Button = findViewById(R.id.btnGoToChart)
+        val btnGoToResults: Button = findViewById(R.id.btnGoToResults)
 
         itemSelectedSpinner = findViewById(R.id.expenseCategorySpinner)
 
@@ -94,8 +94,8 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        btnGoToChart.setOnClickListener {
-            val intent = Intent(this, ChartActivity::class.java)
+        btnGoToResults.setOnClickListener {
+            val intent = Intent(this, ResultsActivity::class.java)
             startActivity(intent)
         }
 

@@ -3,6 +3,7 @@
 
     <string-array name="expense_categories">
         <item>Supermarket</item>
+        <item>Restaurant</item>
         <item>Clothes</item>
         <item>Bills</item>
         <item>Entertainment</item>
