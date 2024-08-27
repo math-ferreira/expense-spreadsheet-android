@@ -11,6 +11,15 @@ This project demonstrates the use of various Android components and libraries to
 
 ## Features
 
+<div style="width: 100%; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; text-align: center;">
+  <img src="https://github.com/user-attachments/assets/042f6e1b-8d13-4970-ae6f-1ca4676b0a3f" width="250" height="550"/>
+  <img src="https://github.com/user-attachments/assets/77b2ce93-cc94-4bf6-a98d-847365289a78" width="250" height="550"/>
+  <img src="https://github.com/user-attachments/assets/32baa55a-5589-4dfe-909c-70d04bb4399d" width="250" height="550"/>
+  <img src="https://github.com/user-attachments/assets/59ea979a-037a-43f8-9545-e012cfccc653" width="250" height="550"/>
+  <img src="https://github.com/user-attachments/assets/b09e60b2-fc0d-48c5-a9d9-9f870c06833e" width="250" height="550"/>
+  <img src="https://github.com/user-attachments/assets/6bf8a049-a22e-453a-8a2c-f17d3f3011d1" width="250" height="550"/>
+</div>
+
 - **Expense Management**: Track daily expenses and categorize them for better financial management.
 - **Spreadsheet Interface**: View and edit expenses in a format similar to spreadsheets.
 - **Monthly Tracking**: Review expenses month by month, making it easier to manage budgets.
