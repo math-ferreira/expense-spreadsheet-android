@@ -4,12 +4,16 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.math.expense.spreadsheet.R
 import com.math.spreadsheet.helper.DatabaseHelper
+import com.math.spreadsheet.model.dto.Expense
+import org.threeten.bp.LocalDate
 
 class ExpensesHistoryActivity : AppCompatActivity() {
 
@@ -21,6 +25,8 @@ class ExpensesHistoryActivity : AppCompatActivity() {
         setContentView(R.layout.activity_history)
 
         val btnBack: Button = findViewById(R.id.btnBack)
+        val btnImport: Button = findViewById(R.id.btnImport)
+        val btnExport: Button = findViewById(R.id.btnExport)
 
         dbHelper = DatabaseHelper(this)
         tableLayout = findViewById(R.id.expensesTableLayout)
@@ -66,7 +72,7 @@ class ExpensesHistoryActivity : AppCompatActivity() {
             val btnDelete = Button(this).apply {
                 text = "Delete"
                 setOnClickListener {
-                    dbHelper.deleteExpense(expense.id)
+                    dbHelper.deleteExpense(expense.id!!)
                     recreate()
                 }
             }
@@ -87,5 +93,105 @@ class ExpensesHistoryActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
+
+        btnImport.setOnClickListener {
+            showImportDialog()
+            //finish()
+        }
+
+        btnExport.setOnClickListener {
+            val expensesList = dbHelper.getAllExpenses()
+            val csvData = convertExpensesToCsv(expensesList)
+            showCsvDialog(csvData)
+        }
+
     }
+
+    private fun showImportDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Import CSV Expenses")
+
+        val editText = EditText(this).apply {
+            hint = "Paste CSV data here"
+            setPadding(32, 32, 32, 32)
+        }
+
+        builder.setView(editText)
+        builder.setPositiveButton("Import") { dialog, _ ->
+            val csvData = editText.text.toString()
+            importCsvData(csvData)
+            dialog.dismiss()
+        }
+        builder.setNegativeButton("Cancel") { dialog, _ ->
+            dialog.dismiss()
+        }
+        builder.show()
+    }
+
+    private fun importCsvData(csvData: String) {
+        val expenses = parseCsvToExpenses(csvData)
+
+        if (expenses.isNotEmpty()) {
+            for (expense in expenses) {
+                dbHelper.addExpense(expense.category, expense.amount, expense.description ?: "", LocalDate.now())
+            }
+            recreate()
+        } else {
+            AlertDialog.Builder(this)
+                .setTitle("Import Failed")
+                .setMessage("No valid data found in the CSV.")
+                .setPositiveButton("OK", null)
+                .show()
+        }
+    }
+
+    private fun parseCsvToExpenses(csvData: String): List<Expense> {
+        val expenses = mutableListOf<Expense>()
+        val rows = csvData.split(";\n")
+
+        for (row in rows) {
+            val columns = row.split(",")
+            if (columns.size == 4) { // Ensure there are exactly 4 columns
+                val category = columns[0].trim()
+                val amount = columns[1].trim().toDoubleOrNull() ?: 0.0
+                val description = columns[2].trim()
+                val monthYear = columns[3].trim()
+
+                // Create an Expense object and add it to the list
+                val expense = Expense(category = category, amount = amount, description = description, monthYear = monthYear)
+                expenses.add(expense)
+            }
+        }
+
+        return expenses
+    }
+
+
+    private fun convertExpensesToCsv(expenses: List<Expense>): String {
+        val stringBuilder = StringBuilder()
+        for (expense in expenses) {
+            // Appending each expense as a CSV row
+            stringBuilder.append("${expense.category},${expense.amount},${expense.description},${expense.monthYear};\n")
+        }
+        return stringBuilder.toString()
+    }
+
+    private fun showCsvDialog(csvData: String) {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Exported CSV Expenses")
+
+        val textView = TextView(this).apply {
+            text = csvData
+            setPadding(32, 32, 32, 32)
+            setTextIsSelectable(true)
+        }
+
+        builder.setView(textView)
+        builder.setPositiveButton("OK") { dialog, _ ->
+            dialog.dismiss()
+        }
+        builder.show()
+    }
+
+
 }

@@ -117,7 +117,6 @@ class DatabaseHelper(context: Context) :
         return expense
     }
 
-
     fun deleteExpense(expenseId: Long) {
         val db = this.writableDatabase
         db.delete(EXPENSES_TABLE_NAME, "$COLUMN_ID = ?", arrayOf(expenseId.toString()))

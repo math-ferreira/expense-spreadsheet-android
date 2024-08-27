@@ -5,8 +5,6 @@
 
     <application
         android:allowBackup="true"
-        android:dataExtractionRules="@xml/data_extraction_rules"
-        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
@@ -14,46 +12,39 @@
         android:theme="@style/Theme.ExpenseSpreadsheet"
         tools:targetApi="31">
 
+        <!-- Set MainActivity as the launcher activity -->
         <activity
-            android:name="com.math.spreadsheet.SetupActivity"
+            android:name="com.math.spreadsheet.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.math.spreadsheet.SetupActivity"
+            android:exported="true">
+            <!-- Add intent filters only if needed for specific actions -->
         </activity>
 
         <activity
             android:name="com.math.spreadsheet.ExpensesHistoryActivity"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            <!-- Add intent filters only if needed for specific actions -->
         </activity>
 
         <activity
             android:name="com.math.spreadsheet.EditExpenseActivity"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            <!-- Add intent filters only if needed for specific actions -->
         </activity>
 
         <activity
             android:name="com.math.spreadsheet.ResultsActivity"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            <!-- Add intent filters only if needed for specific actions -->
         </activity>
-
-        <!-- MainActivity is a secondary activity -->
-        <activity
-            android:name="com.math.spreadsheet.MainActivity"
-            android:exported="true" />
 
     </application>
 
