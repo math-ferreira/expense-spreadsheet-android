@@ -17,7 +17,10 @@ import com.github.mikephil.charting.formatter.PercentFormatter
 import com.github.mikephil.charting.utils.MPPointF
 import com.math.expense.spreadsheet.R
 import com.math.spreadsheet.helper.DatabaseHelper
+import com.math.spreadsheet.util.roundTo2DecimalPlaces
 import org.threeten.bp.LocalDateTime
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 class ResultsActivity : AppCompatActivity() {
 
@@ -136,7 +139,7 @@ class ResultsActivity : AppCompatActivity() {
                     .filter { it.category == category && it.monthYear == monthYearList}
                     .sumOf { it.amount }
 
-                row.addView(createTextView(expensesByCategory.toString()))
+                row.addView(createTextView("€ ${expensesByCategory.roundTo2DecimalPlaces()}"))
             }
             tableLayout.addView(row)
         }

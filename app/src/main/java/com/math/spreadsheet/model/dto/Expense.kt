@@ -5,5 +5,6 @@ data class Expense(
     val category: String,
     val amount: Double,
     val description: String?,
-    val monthYear: String
+    val monthYear: String,
+    val createdAt: String? = null
 )

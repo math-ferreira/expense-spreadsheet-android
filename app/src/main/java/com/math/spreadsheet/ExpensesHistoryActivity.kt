@@ -13,6 +13,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.math.expense.spreadsheet.R
 import com.math.spreadsheet.helper.DatabaseHelper
 import com.math.spreadsheet.model.dto.Expense
+import com.math.spreadsheet.util.ToastUtil
+import com.math.spreadsheet.util.roundTo2DecimalPlaces
 import org.threeten.bp.LocalDate
 
 class ExpensesHistoryActivity : AppCompatActivity() {
@@ -31,7 +33,7 @@ class ExpensesHistoryActivity : AppCompatActivity() {
         dbHelper = DatabaseHelper(this)
         tableLayout = findViewById(R.id.expensesTableLayout)
 
-        val expenses = dbHelper.getAllExpenses()
+        val expenses = dbHelper.getAllExpenses(true)
 
         for (expense in expenses) {
             val tableRow = TableRow(this)
@@ -43,7 +45,7 @@ class ExpensesHistoryActivity : AppCompatActivity() {
             }
 
             val amountTextView = TextView(this).apply {
-                text = expense.amount.toString()
+                text = "€ ${expense.amount.roundTo2DecimalPlaces()}"
                 setPadding(8, 8, 8, 8)
                 setTextColor(Color.BLACK)
             }
@@ -63,7 +65,8 @@ class ExpensesHistoryActivity : AppCompatActivity() {
             val btnEdit = Button(this).apply {
                 text = "Edit"
                 setOnClickListener {
-                    val editIntent = Intent(this@ExpensesHistoryActivity, EditExpenseActivity::class.java)
+                    val editIntent =
+                        Intent(this@ExpensesHistoryActivity, EditExpenseActivity::class.java)
                     editIntent.putExtra("expenseId", expense.id) // Pass the expense ID
                     startActivity(editIntent)
                 }
@@ -77,10 +80,10 @@ class ExpensesHistoryActivity : AppCompatActivity() {
                 }
             }
 
+            tableRow.addView(dateTextView)
             tableRow.addView(categoryTextView)
             tableRow.addView(amountTextView)
             tableRow.addView(descriptionTextView)
-            tableRow.addView(dateTextView)
             tableRow.addView(btnEdit)
             tableRow.addView(btnDelete)
 
@@ -96,13 +99,39 @@ class ExpensesHistoryActivity : AppCompatActivity() {
 
         btnImport.setOnClickListener {
             showImportDialog()
-            //finish()
         }
 
+
         btnExport.setOnClickListener {
-            val expensesList = dbHelper.getAllExpenses()
-            val csvData = convertExpensesToCsv(expensesList)
-            showCsvDialog(csvData)
+            val exportOptions = arrayOf("Android app", "Spreadsheet document")
+
+            AlertDialog.Builder(this)
+                .setTitle("Choose export format")
+                .setItems(exportOptions) { _, which ->
+                    showFilterDialog { monthYearFilter ->
+                        val allExpenses = dbHelper.getAllExpenses()
+                        val expensesList = if (!monthYearFilter.isNullOrEmpty()) {
+                            allExpenses.filter {
+                                it.monthYear.equals(monthYearFilter, ignoreCase = true)
+                            }
+                        } else {
+                            allExpenses
+                        }
+
+                        when (which) {
+                            0 -> {
+                                val csvData = convertExpensesToCsv(expensesList)
+                                showCopyPasteDialogue(csvData)
+                            }
+
+                            1 -> {
+                                val sheetData = convertExpensesToSpreadsheet(expensesList)
+                                showCopyPasteDialogue(sheetData)
+                            }
+                        }
+                    }
+                }
+                .show()
         }
 
     }
@@ -133,7 +162,12 @@ class ExpensesHistoryActivity : AppCompatActivity() {
 
         if (expenses.isNotEmpty()) {
             for (expense in expenses) {
-                dbHelper.addExpense(expense.category, expense.amount, expense.description ?: "", LocalDate.now())
+                dbHelper.addExpense(
+                    expense.category,
+                    expense.amount,
+                    expense.description ?: "",
+                    LocalDate.now()
+                )
             }
             recreate()
         } else {
@@ -151,14 +185,18 @@ class ExpensesHistoryActivity : AppCompatActivity() {
 
         for (row in rows) {
             val columns = row.split(",")
-            if (columns.size == 4) { // Ensure there are exactly 4 columns
+            if (columns.size == 4) {
                 val category = columns[0].trim()
                 val amount = columns[1].trim().toDoubleOrNull() ?: 0.0
                 val description = columns[2].trim()
                 val monthYear = columns[3].trim()
 
-                // Create an Expense object and add it to the list
-                val expense = Expense(category = category, amount = amount, description = description, monthYear = monthYear)
+                val expense = Expense(
+                    category = category,
+                    amount = amount,
+                    description = description,
+                    monthYear = monthYear
+                )
                 expenses.add(expense)
             }
         }
@@ -170,27 +208,66 @@ class ExpensesHistoryActivity : AppCompatActivity() {
     private fun convertExpensesToCsv(expenses: List<Expense>): String {
         val stringBuilder = StringBuilder()
         for (expense in expenses) {
-            // Appending each expense as a CSV row
             stringBuilder.append("${expense.category},${expense.amount},${expense.description},${expense.monthYear};\n")
         }
         return stringBuilder.toString()
     }
 
-    private fun showCsvDialog(csvData: String) {
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("Exported CSV Expenses")
-
+    private fun showCopyPasteDialogue(expensiveData: String) {
         val textView = TextView(this).apply {
-            text = csvData
+            text = expensiveData
             setPadding(32, 32, 32, 32)
             setTextIsSelectable(true)
         }
 
-        builder.setView(textView)
-        builder.setPositiveButton("OK") { dialog, _ ->
-            dialog.dismiss()
+        AlertDialog.Builder(this)
+            .setTitle("Exported Expenses")
+            .setView(textView)
+            .setPositiveButton("OK") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setNeutralButton("Copy") { dialog, _ ->
+                val clipboard =
+                    getSystemService(CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                val clip = android.content.ClipData.newPlainText("Exported Expenses", expensiveData)
+                clipboard.setPrimaryClip(clip)
+                ToastUtil.showToast(this, "Copied to clipboard")
+            }
+            .show()
+    }
+
+
+    private fun convertExpensesToSpreadsheet(expenses: List<Expense>): String {
+        val stringBuilder = StringBuilder()
+
+        expenses.forEachIndexed { index, expense ->
+            stringBuilder.append("${index + 1}\t${expense.category}\t${expense.amount.roundTo2DecimalPlaces()}\t${expense.description}\t${expense.createdAt}\n")
         }
-        builder.show()
+
+        return stringBuilder.toString()
+    }
+
+    private fun showFilterDialog(onFilterChosen: (String?) -> Unit) {
+        val layout = layoutInflater.inflate(R.layout.dialog_month_year_filter, null)
+        val monthInput = layout.findViewById<EditText>(R.id.editMonth)
+        val yearInput = layout.findViewById<EditText>(R.id.editYear)
+
+        AlertDialog.Builder(this)
+            .setTitle("Filter by Month and Year")
+            .setView(layout)
+            .setPositiveButton("Filter") { _, _ ->
+                val month = monthInput.text.toString()
+                val year = yearInput.text.toString()
+                if (month.isNotBlank() && year.isNotBlank()) {
+                    onFilterChosen("$month/$year")
+                } else {
+                    onFilterChosen(null) // Export everything
+                }
+            }
+            .setNegativeButton("All") { _, _ ->
+                onFilterChosen(null) // Export everything
+            }
+            .show()
     }
 
 

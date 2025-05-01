@@ -5,6 +5,7 @@ plugins {
 
 android {
     compileSdk 32
+    namespace 'com.math.expense.spreadsheet'
 
     defaultConfig {
         applicationId "com.math.expense.spreadsheet"

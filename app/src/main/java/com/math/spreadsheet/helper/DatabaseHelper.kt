@@ -107,9 +107,11 @@ class DatabaseHelper(context: Context) :
             val category = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CATEGORY))
             val amount = cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_AMOUNT))
             val description = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DESCRIPTION))
+            val month = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_MONTH))
+            val year = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_YEAR))
             val createdAt = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CREATED_AT))
 
-            expense = Expense(id, category, amount, description, createdAt)
+            expense = Expense(id, category, amount, description, "$month/$year", createdAt)
         }
         cursor.close()
         db.close()
@@ -123,16 +125,17 @@ class DatabaseHelper(context: Context) :
         db.close()
     }
 
-    fun getAllExpenses(): List<Expense> {
+    fun getAllExpenses(orderByDAte: Boolean = false): List<Expense> {
         val expenses = mutableListOf<Expense>()
         val db = this.readableDatabase
 
         val cursor = db.query(
-            EXPENSES_TABLE_NAME, // Corrected table name
-            arrayOf(COLUMN_ID, COLUMN_CATEGORY, COLUMN_AMOUNT, COLUMN_DESCRIPTION, COLUMN_MONTH, COLUMN_YEAR),
+            EXPENSES_TABLE_NAME,
+            arrayOf(COLUMN_ID, COLUMN_CATEGORY, COLUMN_AMOUNT, COLUMN_DESCRIPTION, COLUMN_MONTH, COLUMN_YEAR, COLUMN_CREATED_AT),
             null,
             null,
-            null, null, null
+            null, null,
+            if (orderByDAte) "$COLUMN_MONTH DESC" else null
         )
 
         if (cursor.moveToFirst()) {
@@ -143,8 +146,9 @@ class DatabaseHelper(context: Context) :
                 val description = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DESCRIPTION))
                 val month = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_MONTH))
                 val year = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_YEAR))
+                val createdAt = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CREATED_AT))
 
-                val expense = Expense(id, category, amount, description, "$month/$year")
+                val expense = Expense(id, category, amount, description, "$month/$year", createdAt)
                 expenses.add(expense)
             } while (cursor.moveToNext())
         }

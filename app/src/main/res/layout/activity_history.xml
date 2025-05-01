@@ -29,6 +29,29 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="16dp"/>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="94dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnImport"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:text="Import" />
+
+            <LinearLayout
+                android:layout_width="39dp"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"></LinearLayout>
+
+            <Button
+                android:id="@+id/btnExport"
+                android:layout_width="117dp"
+                android:layout_height="wrap_content"
+                android:text="Export" />
+        </LinearLayout>
+
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -43,6 +66,15 @@
                 android:layout_marginBottom="16dp">
 
                 <TableRow>
+
+                    <TextView
+                        android:layout_width="102dp"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp"
+                        android:text="Month/Year"
+                        android:textColor="@color/black"
+                        android:textStyle="bold" />
+
                     <TextView
                         android:layout_width="103dp"
                         android:layout_height="wrap_content"
@@ -67,39 +99,9 @@
                         android:textColor="@color/black"
                         android:textStyle="bold" />
 
-                    <TextView
-                        android:layout_width="102dp"
-                        android:layout_height="wrap_content"
-                        android:padding="5dp"
-                        android:text="Month/Year"
-                        android:textColor="@color/black"
-                        android:textStyle="bold" />
                 </TableRow>
             </TableLayout>
         </HorizontalScrollView>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="94dp"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/btnImport"
-                android:layout_width="120dp"
-                android:layout_height="wrap_content"
-                android:text="Import" />
-
-            <LinearLayout
-                android:layout_width="39dp"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"></LinearLayout>
-
-            <Button
-                android:id="@+id/btnExport"
-                android:layout_width="117dp"
-                android:layout_height="wrap_content"
-                android:text="Export" />
-        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>
